@@ -22,14 +22,17 @@ Auditors:
 
 ## Table of Contents
 
-- [Review Summary]()
-- [Scope]()
-- [Findings Explanation]()
-- [Critical Findings]()
-- [High Findings]()
-- [Medium Findings]()
-- [Low Findings]()
-- [Informational Findings]()
+- [Review Summary](#review-summary)
+- [Scope](#scope)
+- [Code Evaluation Matrix](#code-evaluation-matrix)
+- [Findings Explanation](#findings-explanation)
+    - [Critical Findings](#critical-findings)
+    - [High Findings](#high-findings)
+    - [Medium Findings](#medium-findings)
+    - [Low Findings](#low-findings)
+    - [Informational Findings](#informational-findings)
+- [Final Remarks](#final-remarks)
+- [Automated Program Analysis](/AutomatedAnalysis.md)
 
 ## Review Summary
 
@@ -58,7 +61,7 @@ This review is a code review to identify potential vulnerabilities in the code. 
 yAcademy and the auditors make no warranties regarding the security of the code and do not warrant that the code is free from defects. yAcademy and the auditors do not represent nor imply to third parties that the code has been audited nor that the code is free from defects. By deploying or using the code, Spartan-ecdsa and users of the circuits agree to use the code at their own risk.
 
 
-Code Evaluation Matrix
+## Code Evaluation Matrix
 ---
 
 | Category                 | Mark    | Description |
