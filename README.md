@@ -90,13 +90,13 @@ None.
 
 ## High Findings
 
-### 1. s is not constrained in ``eff_ecdsa.circom``
+### 1. High - s is not constrained in ``eff_ecdsa.circom``
 
 It is possible to submit s = 0, Ux = pubX, Uy = pubY or s = 0, Ux = pubX, Uy = -pubY and get back (pubX, pubY), though this is not a valid signature.
 
 #### Technical Details
 
-Given check $\ s * T + U == pubKey\$
+Given check $\ s * T + U == pubKey\$ ,
 ```math
 s * T + U == pubKey
 ```
@@ -128,7 +128,7 @@ Add the constraints to the circuit and/or documentation
 
 Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou)
 
-### 2. Knowledge of any member signature allow to generate proof of membership
+### 2. High - Knowledge of any member signature allow to generate proof of membership
 
 Knowing any valid signature by an account stored in the merkle tree, allows to generate relevant proof of being a member
 
@@ -145,7 +145,7 @@ Add the constraints to the circuit and/or documentation
 
 Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou)
 
-### 3. Under constrained circuits compromising the soundness of the system
+### 3. High - Under constrained circuits compromising the soundness of the system
 
 In the file [packages/circuits/eff_ecdsa_membership/secp256k1/mul.circom](), the signals `slo` & `shi` are assigned but not constrained.
 
@@ -182,6 +182,8 @@ User may provide a public key (which is just a point $`(x,y)`$) that is not a va
 
 - Validate the given point $(x,y)$ outside of the circuit.
 
+Reported by [Rajesh](https://github.com/RajeshRk18)
+
 #### Developer Response
 ## Medium Findings
 
@@ -189,67 +191,32 @@ None.
 
 ## Low Findings
 
-### 1. Low - TODO_Title
+### 1. Low - Unchecked edge case in complete addition
+`Secp256k1AddComplete()` returns an incorrect value when `yP + yQ = 1`.
 
-TODO
+#### Technical Details
+`zeroizeA.out` should be `0` when `P` and `Q` are different points, but when `xP != xQ` and `yP + yQ = 1` it would be 1.
 
-#### #### Technical Details
+In this case the output point would be the point at infinity instead of the actual sum.
 
-TODO
+#### Impact
+Low. Secp256k1 arithmetics is incorrect in some edge cases.
 
-#### #### Impact
+#### Recommendation
+Document the proof that P,Q on the curve such that `yP + yQ = 1` do not exist or are practically impossible to occurr.
 
-Low. TODO_reasoning.
+If this can't be done, then add a `isYEqual` component as done for X and use `AND()` instead of `IsEqual()`
+```
+    component zeroizeA = AND();
+    zeroizeA.in[0] <== isXEqual.out;
+    zeroizeA.in[1] <== isYEqual.out;
+```
 
-#### #### Recommendation
-
-TODO
-
-#### #### Developer Response
-
-
-
-### 2. Low - TODO_Title
-
-TODO
-
-#### #### Technical Details
-
-TODO
-
-#### #### Impact
-
-Low. TODO_reasoning.
-
-#### #### Recommendation
-
-TODO
-
-#### #### Developer Response
-
-
-
-## Gas Savings Findings
-
-### 1. Gas - TODO_Title
-
-TODO
-
-#### #### Technical Details
-
-TODO
-
-#### #### Impact
-
-Gas savings.
-
-#### #### Recommendation
-
-TODO
+Reported by [Bahurum](https://github.com/bahurum)
 
 ## Informational Findings
 
-### 1. Optimization - Over-allocation of circom components
+### 1. Informational - Over-allocation of circom components
 
 In mul.circom:Secp256k1Mul, the value accIncomplete and PComplete are over-allocated.
 
@@ -287,9 +254,9 @@ Informational.
 #### Recommendation
 Remove the unused value.
 
-Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou), [garfam](https://github.com/gafram), [parsley](https://github.com/bbresearcher)
+Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou), [garfam](https://github.com/gafram), [parsley](https://github.com/bbresearcher), [Bahurum](https://github.com/bahurum), [lwltea](https://github.com/lwltea)
 
-### 3. No constraints on input signals
+### 3. Informational - No constraints on input signals
 
 #### Technical Details
 
@@ -303,6 +270,53 @@ Informational.
 
 In order to keep the number of constraints to a minimum, simply document the absence of input signal constraints clearly and suggest that they be validated in the application code.
 
+### 4. Informational - Missing & Extra Imports in `eff_ecdsa.circom`
+
+#### Technical Details
+
+The `add.circom` import is missing in `eff_ecdsa.circom`. The `bitify.circom` is imported in eff_ecdsa.circom but not used.
+
+#### Impact
+
+Informational. This is not an issue as `add.circom` is imported in `mul.circom` which is in turn imported in `eff_ecdsa.circom`.
+
+#### Recommendation
+
+But recommendation is to explicitly import like `include "./secp256k1/add.circom";` & remove `bitify.circom` import.
+
+Reported by [lwltea](https://github.com/lwltea), [Vincent Owen](https://github.com/makluganteng)
+
+### 5. Informational - Constraints for add.cicom for values to be non-zero
+
+In signal assignments containing division, the divisor needs to be constrained to be non-zero.
+
+#### Technical Details
+```
+   │
+31 │     lambda <-- dy / dx;
+   │                     ^^ The divisor `dx` must be constrained to be non-zero.
+```
+#### Impact
+Informational.
+
+#### Recommendation
+Do an additional check for non-zero values.
+
+Reported by [Chen Wen Kang](https://github.com/cwkang1998), [Vincent Owen](https://github.com/makluganteng)
+
+#### 6. Informational - More tests for the circuits
+Additional tests are always good to have in order to cover more unexpected cases.
+
+#### Technical Details
+`eff_ecdsa.test.ts` and `eff_ecdsa_to_addr.test.ts` only have 1 positive tests.
+
+#### Impact
+Informational.
+
+#### Recommendation
+Adding more tests for the circuits.
+
+Reported by [Chen Wen Kang](https://github.com/cwkang1998), [Vincent Owen](https://github.com/makluganteng)
 ## Final remarks
 
 TODO
