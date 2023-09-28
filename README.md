@@ -100,7 +100,7 @@ Given check
 s * T + U == pubKey Q_a
 ```
 ```math
-For s = 0 and \forall T \in secp256k1
+For s = 0 and  \forall  T  \in secp256k1
 ```
 ```math
 s * T + U = 0 * T + U = O + U = U == pubKey
