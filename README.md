@@ -134,14 +134,16 @@ s * T + U = s * 0 + U = O + U = U == pubKey
 where `U = (pubX, pubY)`, -U would work as well, where `-U = (pubX, -pubY)`. Here is a [POC](https://gist.github.com/igorline/c45c0fb84c943d1f641c82a20c02c21e#file-addr_membership-test-ts-L60-L66) to explain the same.
 
 #### Impact
-
 High. The missing constraints can be used to generate fake proof.
 
 #### Recommendation
-
 Add the constraints to the circuit and/or documentation
 
+#### Developer Response
+Acknowledged
+
 Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou)
+
 
 ### 2. High - Knowledge of any member signature allow to generate proof of membership
 
@@ -157,6 +159,7 @@ High. The missing constraints can be used to generate fake proof.
 Add the constraints to the circuit and/or documentation
 
 #### Developer Response
+Acknowledged
 
 Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou)
 
@@ -165,14 +168,12 @@ Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https:
 In the file [packages/circuits/eff_ecdsa_membership/secp256k1/mul.circom](), the signals `slo` & `shi` are assigned but not constrained.
 
 #### Technical Details
-
 ```
     signal slo <-- s & (2  (128) - 1);
     signal shi <-- s >> 128;
 ```
 
 #### Impact
-
 High. Malicious provers can generate a fake proof in the case of an unsound system caused by underconstrained circuits.
 
 #### Developer Response
@@ -197,9 +198,11 @@ User may provide a public key (which is just a point $`(x,y)`$) that is not a va
 
 Validate the given point $(x,y)$ outside of the circuit.
 
+#### Developer Response
+Acknowledged
+
 Reported by [Rajesh](https://github.com/RajeshRk18)
 
-#### Developer Response
 ## Medium Findings
 
 None.
@@ -228,6 +231,9 @@ If this can't be done, then add a `isYEqual` component as done for X and use `AN
 ```
 There should be similar informational warnings to the client implementations for many edge cases like zero point, points at infinity, additions/multiplications with $p$ & $-p$
 
+#### Developer Response
+Acknowledged
+
 Reported by [Bahurum](https://github.com/bahurum), [0xnagu](https://github.com/thogiti)
 
 ## Informational Findings
@@ -246,23 +252,23 @@ In [mul.circom:Secp256k1Mul](), the value `accIncomplete` and `PComplete` are ov
 ```
 
 #### Impact
-
 Optimization.
 
 #### Recommendation
 
 Reduce the allocation of these component arrays to `accIncomplete[bits-p3]` and `PIncomplete[3]`.
 
+#### Developer Response
+Acknowledged
+
 Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou), [nullity](https://github.com/nullity00), [parsley](https://github.com/bbresearcher)
 
 ### 2. Informational - Check if the input scalar is within the valid range
 
 #### Technical Details
-
 Add assertions and constraints to check for invalid inputs and edge cases
 
 #### Impact
-
 Informational.
 
 #### Recommendation
@@ -271,6 +277,9 @@ Add a constraint to ensure that the input scalar is within the valid range of th
 // Add this line after the signal input scalar declaration
 assert(scalar < 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141);
 ```
+
+#### Developer Response
+Acknowledged
 
 Reported by [0xnagu](https://github.com/thogiti)
 
@@ -281,11 +290,13 @@ Reported by [0xnagu](https://github.com/thogiti)
 In `eff_ecdsa.circom`, the value `bits` is assigned but never read.
 
 #### Impact
-
 Informational.
 
 #### Recommendation
 Remove the unused value.
+
+#### Developer Response
+Acknowledged
 
 Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou), [garfam](https://github.com/gafram), [parsley](https://github.com/bbresearcher), [Bahurum](https://github.com/bahurum), [lwltea](https://github.com/lwltea)
 
@@ -296,12 +307,13 @@ Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https:
 Likely due to a desire to reduce the number of constraints to a bare minimum, there are no constraints on input signals in any of the circuits. This could potentially cause issues for third party developers who use Spartan ECDSA.
 
 #### Impact
-
 Informational.
 
 #### Recommendation
-
 In order to keep the number of constraints to a minimum, simply document the absence of input signal constraints clearly and suggest that they be validated in the application code.
+
+#### Developer Response
+Acknowledged
 
 Reported by [whoismatthewmc](https://github.com/whoismatthewmc1)
 
@@ -316,8 +328,10 @@ The `add.circom` import is missing in `eff_ecdsa.circom`. The `bitify.circom` is
 Informational. This is not an issue as `add.circom` is imported in `mul.circom` which is in turn imported in `eff_ecdsa.circom`.
 
 #### Recommendation
-
 But recommendation is to explicitly import like `include "./secp256k1/add.circom";` & remove `bitify.circom` import.
+
+#### Developer Response
+Acknowledged
 
 Reported by [lwltea](https://github.com/lwltea), [Vincent Owen](https://github.com/makluganteng)
 
@@ -337,6 +351,8 @@ Informational.
 #### Recommendation
 Do an additional check for non-zero values.
 
+#### Developer Response
+Acknowledged
 Reported by [Chen Wen Kang](https://github.com/cwkang1998), [Vincent Owen](https://github.com/makluganteng)
 
 #### 7. Informational - More tests for the circuits
@@ -350,6 +366,9 @@ Informational.
 
 #### Recommendation
 Adding more tests for the circuits.
+
+#### Developer Response
+Acknowledged
 
 Reported by [Chen Wen Kang](https://github.com/cwkang1998), [Vincent Owen](https://github.com/makluganteng)
 
