@@ -90,7 +90,7 @@ None.
 
 ## High Findings
 
-### 1. High - s is not constrained in eff_ecdsa.circom
+### 1. s is not constrained in ``eff_ecdsa.circom``
 
 It is possible to submit s = 0, Ux = pubX, Uy = pubY or s = 0, Ux = pubX, Uy = -pubY and get back (pubX, pubY), though this is not a valid signature.
 
@@ -98,8 +98,10 @@ Technical Details
 Given check
 
 ```math
-s * T + U == pubKey Q_a
-For s = 0 and \(\forall\)
+s * T + U == pubKey Q_a \\
+
+For s = 0 and \forall T \in secp256k1 \\
+
 ```
 
 
