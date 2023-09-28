@@ -118,6 +118,23 @@ where `U = (pubX, pubY)`, -U would work as well, where `-U = (pubX, -pubY)`
 [POC File](https://gist.github.com/igorline/c45c0fb84c943d1f641c82a20c02c21e#file-addr_membership-test-ts-L60-L66)
 
 **Impact**
+
+High. The missing constraints can be used to generate fake proof.
+
+**Recommendation**
+
+Add the constraints to the circuit and/or documentation
+
+Reported By : [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou)
+
+### 2. Knowledge of any member signature allow to generate proof of membership
+
+Knowing any valid signature by an account stored in the merkle tree, allows to generate relevant proof of being a member
+
+**Technical Details**
+There is no check on message supplied by the user thus user can submit any signature generated in the past with arbitrary message hashed
+
+**Impact**
 High. The missing constraints can be used to generate fake proof.
 
 **Recommendation**
@@ -125,6 +142,28 @@ Add the constraints to the circuit and/or documentation
 
 **Developer Response**
 
+Reported By : [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou)
+
+### 3. Under constrained circuits compromising the soundness of the system
+
+In the file [packages/circuits/eff_ecdsa_membership/secp256k1/mul.circom](), the signals `slo` & `shi` are assigned but not constrained.
+
+**Technical Details**
+
+```
+    signal slo <-- s & (2 ** (128) - 1);
+    signal shi <-- s >> 128;
+```
+
+**Impact**
+
+High. Malicious provers can generate a fake proof in the case of an unsound system caused by underconstrained circuits.
+
+**Developer Response**
+
+> Adding the line `slo + shi * 2 ** 128 === s;` would fix this, but it turns out that actually, that calculation of `k = (s + tQ) % q` doesn't have to be constrained at all (so the entire template K is unnecessary). Regardless, your discovery made me realize K is unnecessary, which results in solid constraint count reduction!
+
+Reported by : [nullity](https://github.com/nullity00)
 ## Medium Findings
 
 None.
@@ -191,21 +230,59 @@ TODO
 
 ## Informational Findings
 
-### 1. Informational - TODO_Title
+### 1. Optimization - Over-allocation of circom components
 
-TODO
+In mul.circom:Secp256k1Mul, the value accIncomplete and PComplete are over-allocated.
 
-#### Technical Details
+**Technical Details**
 
-TODO
+In [mul.circom:Secp256k1Mul](), the value `accIncomplete` and `PComplete` are over-allocated.
+```
+    component accIncomplete[bits];
+    // ...
+    component PComplete[bits-3]; 
+```
 
-#### Impact
+**Impact**
+
+Optimization.
+
+**Recommendation**
+
+Reduce the allocation of these component arrays to `accIncomplete[bits-p3]` and `PIncomplete[3]`.
+
+Reported By : [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou), [nullity](https://github.com/nullity00), [parsley](https://github.com/bbresearcher), 
+
+### 2. Informational - Unused values
+
+In `eff_ecdsa.circom`, the value `bits` is assigned but never read.
+
+**Technical Details**
+
+In `eff_ecdsa.circom`, the value `bits` is assigned but never read.
+
+**Impact**
 
 Informational.
 
-#### Recommendation
+**Recommendation**
+Remove the unused value.
 
-TODO
+Reported By : [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou), [garfam](https://github.com/gafram), [parsley](https://github.com/bbresearcher)
+
+### 3. No constraints on input signals
+
+**Technical Details**
+
+Likely due to a desire to reduce the number of constraints to a bare minimum, there are no constraints on input signals in any of the circuits. This could potentially cause issues for third party developers who use Spartan ECDSA.
+
+**Impact**
+
+Informational.
+
+**Recommendation**
+
+In order to keep the number of constraints to a minimum, simply document the absence of input signal constraints clearly and suggest that they be validated in the application code.
 
 ## Final remarks
 
