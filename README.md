@@ -98,9 +98,9 @@ Technical Details
 Given check
 
 ```math
-s * T + U == pubKey Q_a \\
+s * T + U == pubKey Q_a \
 
-For s = 0 and \forall T \in secp256k1 \\
+For s = 0 and \forall T \in secp256k1 \
 
 ```
 
