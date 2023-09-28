@@ -211,8 +211,9 @@ If this can't be done, then add a `isYEqual` component as done for X and use `AN
     zeroizeA.in[0] <== isXEqual.out;
     zeroizeA.in[1] <== isYEqual.out;
 ```
+There should be similar informational warnings to the client implementations for many edge cases like zero point, points at infinity, additions/multiplications with $\p\$ & $\-p\$
 
-Reported by [Bahurum](https://github.com/bahurum)
+Reported by [Bahurum](https://github.com/bahurum), [0xnagu](https://github.com/thogiti)
 
 ## Informational Findings
 
@@ -239,9 +240,26 @@ Reduce the allocation of these component arrays to `accIncomplete[bits-p3]` and 
 
 Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou), [nullity](https://github.com/nullity00), [parsley](https://github.com/bbresearcher), 
 
-### 2. Informational - Unused values
+### 2. Informational - Check if the input scalar is within the valid range
 
-In `eff_ecdsa.circom`, the value `bits` is assigned but never read.
+#### Technical Details
+
+Add assertions and constraints to check for invalid inputs and edge cases
+
+#### Impact
+
+Informational.
+
+#### Recommendation
+Add a constraint to ensure that the input scalar is within the valid range of the Secp256k1 elliptic curve. You can do this by adding an assertion to check if the scalar is less than the curve's order.
+```
+// Add this line after the signal input scalar declaration
+assert(scalar < 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141);
+```
+
+Reported by [0xnagu](https://github.com/thogiti)
+
+### 3. Informational - Unused values
 
 #### Technical Details
 
@@ -256,7 +274,7 @@ Remove the unused value.
 
 Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou), [garfam](https://github.com/gafram), [parsley](https://github.com/bbresearcher), [Bahurum](https://github.com/bahurum), [lwltea](https://github.com/lwltea)
 
-### 3. Informational - No constraints on input signals
+### 4. Informational - No constraints on input signals
 
 #### Technical Details
 
@@ -270,7 +288,7 @@ Informational.
 
 In order to keep the number of constraints to a minimum, simply document the absence of input signal constraints clearly and suggest that they be validated in the application code.
 
-### 4. Informational - Missing & Extra Imports in `eff_ecdsa.circom`
+### 5. Informational - Missing & Extra Imports in `eff_ecdsa.circom`
 
 #### Technical Details
 
@@ -286,7 +304,7 @@ But recommendation is to explicitly import like `include "./secp256k1/add.circom
 
 Reported by [lwltea](https://github.com/lwltea), [Vincent Owen](https://github.com/makluganteng)
 
-### 5. Informational - Constraints for add.cicom for values to be non-zero
+### 6. Informational - Constraints for add.cicom for values to be non-zero
 
 In signal assignments containing division, the divisor needs to be constrained to be non-zero.
 
@@ -304,7 +322,7 @@ Do an additional check for non-zero values.
 
 Reported by [Chen Wen Kang](https://github.com/cwkang1998), [Vincent Owen](https://github.com/makluganteng)
 
-#### 6. Informational - More tests for the circuits
+#### 7. Informational - More tests for the circuits
 Additional tests are always good to have in order to cover more unexpected cases.
 
 #### Technical Details
@@ -319,4 +337,13 @@ Adding more tests for the circuits.
 Reported by [Chen Wen Kang](https://github.com/cwkang1998), [Vincent Owen](https://github.com/makluganteng)
 ## Final remarks
 
-TODO
+- The Spartan-Ecdsa circuits assume that the underlying hash function (Poseidon) is:
+    - Collision-resistant
+    - Resistant to differential, algebraic, and interpolation attacks
+    - Behaves as a random oracle
+- The Merkle tree used for membership proof is assumed to be secure against second-preimage attacks.
+- Social engineering attacks are still a valid way to break the system.
+ECDSA has several nonce based attacks. It is very important that the client side confirguration doesn't leak any nonce data or any app metadata that can reduce the security of guessing nonce for the ECDSA.
+- Clarify the proper usage of each template, where assertions about the valuation of its inputs (pre-conditions) should be satisfied when calling the template.
+- Write a detailed check list of things to do on the client side. This can help the developers not make standard mistakes of not validating the inputs and outputs and there by resulting into underconstrained related critical bugs.
+- Overall, the code demonstrates good implementation of mathematical operations and basic functionality. However, it could benefit from more extensive documentation and additional testing and verification procedures.
