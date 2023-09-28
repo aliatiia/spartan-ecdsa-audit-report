@@ -97,13 +97,19 @@ It is possible to submit s = 0, Ux = pubX, Uy = pubY or s = 0, Ux = pubX, Uy = -
 Technical Details
 Given check
 ```math
-s * T + U == pubKey Q_a \\
-For s = 0 and \forall T \in secp256k1 \\
+s * T + U == pubKey Q_a
+```
+```math
+For s = 0 and \forall T \in secp256k1
+```
+```math
 s * T + U = 0 * T + U = O + U = U == pubKey
 ```
 or
 ```math
 For T = 0 and \forall s \in secp256k1
+```
+```math
 s * T + U = s * 0 + U = O + U = U == pubKey 
 ```
 
