@@ -28,9 +28,21 @@ Auditors:
 - [Findings Explanation](#findings-explanation)
     - [Critical Findings](#critical-findings)
     - [High Findings](#high-findings)
+        - [1. Input signal s is not constrained in eff_ecdsa.circom](#1-high---input-signal-s-is-not-constrained-in-eff_ecdsacircom)
+        - [2. Knowledge of any member signature allow to generate proof of membership](#2-high---knowledge-of-any-member-signature-allow-to-generate-proof-of-membership)
+        - [3. Under constrained circuits compromising the soundness of the system](#3-high---under-constrained-circuits-compromising-the-soundness-of-the-system)
+        - [4. X, Y pair may be an invalid point on the curve](#4-high---x-y-pair-may-be-an-invalid-point-on-the-curve)
     - [Medium Findings](#medium-findings)
     - [Low Findings](#low-findings)
+        - [1. Unchecked edge case in complete addition](#1-low---unchecked-edge-case-in-complete-addition)
     - [Informational Findings](#informational-findings)
+        - [1. Over-allocation of circom components](#1-informational---over-allocation-of-circom-components)
+        - [2. Check if the input scalar is within the valid range](#2-informational---check-if-the-input-scalar-is-within-the-valid-range)
+        - [3. Unused value `bits`](#3-informational---unused-value-bits)
+        - [4. No constraints on input signals](#4-informational---no-constraints-on-input-signals)
+        - [5. Missing & Extra Imports in eff_ecdsa.circom](#5-informational---missing--extra-imports-in-eff_ecdsacircom)
+        - [6. Constraints for add.cicom for values to be non-zero](#6-informational---constraints-for-addcicom-for-values-to-be-non-zero)
+        - [7. More tests for the circuits](#7-informational---more-tests-for-the-circuits)
 - [Final Remarks](#final-remarks)
 - [Automated Program Analysis](/AutomatedAnalysis.md)
 
@@ -93,7 +105,7 @@ None.
 
 ## High Findings
 
-### 1. High - s is not constrained in ``eff_ecdsa.circom``
+### 1. High - Input signal s is not constrained in ``eff_ecdsa.circom``
 
 It is possible to submit `s = 0`, `Ux = pubX`, `Uy = pubY` or `s = 0`, `Ux = pubX`, `Uy = -pubY` and get back `(pubX, pubY)`, though this is not a valid signature.
 
@@ -169,7 +181,7 @@ High. Malicious provers can generate a fake proof in the case of an unsound syst
 
 Reported by [nullity](https://github.com/nullity00)
 
-### 4. High - X, Y pair may be an invalid point on the curve.
+### 4. High - X, Y pair may be an invalid point on the curve
 
 Circuits do not check whether the point $(x,y)$ is on the curve $E$.
 
@@ -214,7 +226,7 @@ If this can't be done, then add a `isYEqual` component as done for X and use `AN
     zeroizeA.in[0] <== isXEqual.out;
     zeroizeA.in[1] <== isYEqual.out;
 ```
-There should be similar informational warnings to the client implementations for many edge cases like zero point, points at infinity, additions/multiplications with $\p\$ & $\-p\$
+There should be similar informational warnings to the client implementations for many edge cases like zero point, points at infinity, additions/multiplications with $p$ & $-p$
 
 Reported by [Bahurum](https://github.com/bahurum), [0xnagu](https://github.com/thogiti)
 
@@ -241,7 +253,7 @@ Optimization.
 
 Reduce the allocation of these component arrays to `accIncomplete[bits-p3]` and `PIncomplete[3]`.
 
-Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou), [nullity](https://github.com/nullity00), [parsley](https://github.com/bbresearcher), 
+Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou), [nullity](https://github.com/nullity00), [parsley](https://github.com/bbresearcher)
 
 ### 2. Informational - Check if the input scalar is within the valid range
 
@@ -262,7 +274,7 @@ assert(scalar < 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD03641
 
 Reported by [0xnagu](https://github.com/thogiti)
 
-### 3. Informational - Unused values
+### 3. Informational - Unused value `bits`
 
 #### Technical Details
 
