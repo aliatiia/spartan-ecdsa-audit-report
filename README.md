@@ -76,11 +76,11 @@ Code Evaluation Matrix
 
 ## Findings Explanation
 
-Findings are broken down into sections by their respective #### Impact:
- - Critical, High, Medium, Low #### Impact
+Findings are broken down into sections by their respective Impact:
+ - Critical, High, Medium, Low Impact
      - These are findings that range from attacks that may cause loss of funds, proof malleability, or cause any unintended consequences/actions that are outside the scope of the requirements
  - Informational
-     - Findings including #### Recommendations and best practices
+     - Findings including Recommendations and best practices
 
 ---
 
@@ -92,7 +92,7 @@ None.
 
 ### 1. High - s is not constrained in ``eff_ecdsa.circom``
 
-It is possible to submit s = 0, Ux = pubX, Uy = pubY or s = 0, Ux = pubX, Uy = -pubY and get back (pubX, pubY), though this is not a valid signature.
+It is possible to submit `s = 0`, `Ux = pubX`, `Uy = pubY` or `s = 0`, `Ux = pubX`, `Uy = -pubY` and get back `(pubX, pubY)`, though this is not a valid signature.
 
 #### Technical Details
 
@@ -116,7 +116,7 @@ T = 0 , \forall s \in secp256k1
 s * T + U = s * 0 + U = O + U = U == pubKey 
 ```
 
-where `U = (pubX, pubY)`, -U would work as well, where `-U = (pubX, -pubY)`. A [POC](https://gist.github.com/igorline/c45c0fb84c943d1f641c82a20c02c21e#file-addr_membership-test-ts-L60-L66) to explain the same.
+where `U = (pubX, pubY)`, -U would work as well, where `-U = (pubX, -pubY)`. Here is a [POC](https://gist.github.com/igorline/c45c0fb84c943d1f641c82a20c02c21e#file-addr_membership-test-ts-L60-L66) to explain the same.
 
 #### Impact
 
@@ -180,7 +180,7 @@ User may provide a public key (which is just a point $`(x,y)`$) that is not a va
 
 #### Recommendation
 
-- Validate the given point $(x,y)$ outside of the circuit.
+Validate the given point $(x,y)$ outside of the circuit.
 
 Reported by [Rajesh](https://github.com/RajeshRk18)
 
@@ -195,7 +195,7 @@ None.
 `Secp256k1AddComplete()` returns an incorrect value when `yP + yQ = 1`.
 
 #### Technical Details
-`zeroizeA.out` should be `0` when `P` and `Q` are different points, but when `xP != xQ` and `yP + yQ = 1` it would be 1.
+`zeroizeA.out` should be 0 when `P` and `Q` are different points, but when `xP != xQ` and `yP + yQ = 1` it would be 1.
 
 In this case the output point would be the point at infinity instead of the actual sum.
 
@@ -203,7 +203,7 @@ In this case the output point would be the point at infinity instead of the actu
 Low. Secp256k1 arithmetics is incorrect in some edge cases.
 
 #### Recommendation
-Document the proof that P,Q on the curve such that `yP + yQ = 1` do not exist or are practically impossible to occurr.
+Document the proof that $P$, $Q$ on the curve such that $yP + yQ = 1$ do not exist or are practically impossible to occurr.
 
 If this can't be done, then add a `isYEqual` component as done for X and use `AND()` instead of `IsEqual()`
 ```
@@ -288,6 +288,8 @@ Informational.
 
 In order to keep the number of constraints to a minimum, simply document the absence of input signal constraints clearly and suggest that they be validated in the application code.
 
+Reported by [whoismatthewmc](https://github.com/whoismatthewmc1)
+
 ### 5. Informational - Missing & Extra Imports in `eff_ecdsa.circom`
 
 #### Technical Details
@@ -335,6 +337,7 @@ Informational.
 Adding more tests for the circuits.
 
 Reported by [Chen Wen Kang](https://github.com/cwkang1998), [Vincent Owen](https://github.com/makluganteng)
+
 ## Final remarks
 
 - The Spartan-Ecdsa circuits assume that the underlying hash function (Poseidon) is:
