@@ -1,10 +1,10 @@
 # yAcademy Spartan ECDSA
 
-**Review Resources:**
+Review Resources:
 
 - [Spartan-ecdsa](https://github.com/personaelabs/spartan-ecdsa)
 
-**Auditors:**
+Auditors:
 
 - [0xnagu](https://github.com/thogiti)
 - [Antonio Viggiano](https://github.com/aviggiano)
@@ -76,11 +76,11 @@ Code Evaluation Matrix
 
 ## Findings Explanation
 
-Findings are broken down into sections by their respective impact:
- - Critical, High, Medium, Low impact
+Findings are broken down into sections by their respective #### Impact:
+ - Critical, High, Medium, Low #### Impact
      - These are findings that range from attacks that may cause loss of funds, proof malleability, or cause any unintended consequences/actions that are outside the scope of the requirements
  - Informational
-     - Findings including recommendations and best practices
+     - Findings including #### Recommendations and best practices
 
 ---
 
@@ -94,14 +94,14 @@ None.
 
 It is possible to submit s = 0, Ux = pubX, Uy = pubY or s = 0, Ux = pubX, Uy = -pubY and get back (pubX, pubY), though this is not a valid signature.
 
-**Technical Details**
+#### Technical Details
 
-Given check
+Given check $\ s * T + U == pubKey\$
 ```math
-Given check, s * T + U == pubKey Q_a
+s * T + U == pubKey
 ```
 ```math
-For s = 0 and  \forall  T  \in secp256k1
+s = 0 ,  \forall  T  \in secp256k1
 ```
 ```math
 s * T + U = 0 * T + U = O + U = U == pubKey
@@ -110,63 +110,79 @@ s * T + U = 0 * T + U = O + U = U == pubKey
 or
 ```
 ```math
-For T = 0 and \forall s \in secp256k1
+T = 0 , \forall s \in secp256k1
 ```
 ```math
 s * T + U = s * 0 + U = O + U = U == pubKey 
 ```
 
-where `U = (pubX, pubY)`, -U would work as well, where `-U = (pubX, -pubY)`
+where `U = (pubX, pubY)`, -U would work as well, where `-U = (pubX, -pubY)`. A [POC](https://gist.github.com/igorline/c45c0fb84c943d1f641c82a20c02c21e#file-addr_membership-test-ts-L60-L66) to explain the same.
 
-[POC File](https://gist.github.com/igorline/c45c0fb84c943d1f641c82a20c02c21e#file-addr_membership-test-ts-L60-L66)
-
-**Impact**
+#### Impact
 
 High. The missing constraints can be used to generate fake proof.
 
-**Recommendation**
+#### Recommendation
 
 Add the constraints to the circuit and/or documentation
 
-Reported By : [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou)
+Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou)
 
 ### 2. Knowledge of any member signature allow to generate proof of membership
 
 Knowing any valid signature by an account stored in the merkle tree, allows to generate relevant proof of being a member
 
-**Technical Details**
+#### Technical Details
 There is no check on message supplied by the user thus user can submit any signature generated in the past with arbitrary message hashed
 
-**Impact**
+#### Impact
 High. The missing constraints can be used to generate fake proof.
 
-**Recommendation**
+#### Recommendation
 Add the constraints to the circuit and/or documentation
 
-**Developer Response**
+#### Developer Response
 
-Reported By : [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou)
+Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou)
 
 ### 3. Under constrained circuits compromising the soundness of the system
 
 In the file [packages/circuits/eff_ecdsa_membership/secp256k1/mul.circom](), the signals `slo` & `shi` are assigned but not constrained.
 
-**Technical Details**
+#### Technical Details
 
 ```
-    signal slo <-- s & (2 ** (128) - 1);
+    signal slo <-- s & (2  (128) - 1);
     signal shi <-- s >> 128;
 ```
 
-**Impact**
+#### Impact
 
 High. Malicious provers can generate a fake proof in the case of an unsound system caused by underconstrained circuits.
 
-**Developer Response**
+#### Developer Response
 
-> Adding the line `slo + shi * 2 ** 128 === s;` would fix this, but it turns out that actually, that calculation of `k = (s + tQ) % q` doesn't have to be constrained at all (so the entire template K is unnecessary). Regardless, your discovery made me realize K is unnecessary, which results in solid constraint count reduction!
+> Adding the line `slo + shi * 2  128 === s;` would fix this, but it turns out that actually, that calculation of `k = (s + tQ) % q` doesn't have to be constrained at all (so the entire template K is unnecessary). Regardless, your discovery made me realize K is unnecessary, which results in solid constraint count reduction!
 
-Reported by : [nullity](https://github.com/nullity00)
+Reported by [nullity](https://github.com/nullity00)
+
+### 4. High - X, Y pair may be an invalid point on the curve.
+
+Circuits do not check whether the point $(x,y)$ is on the curve $E$.
+
+#### Technical Details
+
+The pair $\(x,y)\$ forms a group $G\$ of order $N\$ under $E(\mathbb{F}_p)/\mathcal{P}\$ where $E\$ represents an elliptic curve, $x, y < P\$ and $\mathbb{F}_p\$ denotes a finite field, and $\mathcal{P}\$ represents the prime order of the base point. But no check for whether $\(x,y)\$ in $G\$ is done. That is, the point $\(x,y)\$ is not being validated.
+
+#### Impact
+
+User may provide a public key (which is just a point $`(x,y)`$) that is not a valid point on the curve. This may leak the private key if the point is chosen from small order $N'$ of another curve $C'$
+
+#### Recommendation
+
+- Validate the given point $(x,y)$ outside of the circuit.
+
+#### Developer Response
 ## Medium Findings
 
 None.
@@ -177,19 +193,19 @@ None.
 
 TODO
 
-#### Technical Details
+#### #### Technical Details
 
 TODO
 
-#### Impact
+#### #### Impact
 
 Low. TODO_reasoning.
 
-#### Recommendation
+#### #### Recommendation
 
 TODO
 
-#### Developer Response
+#### #### Developer Response
 
 
 
@@ -197,19 +213,19 @@ TODO
 
 TODO
 
-#### Technical Details
+#### #### Technical Details
 
 TODO
 
-#### Impact
+#### #### Impact
 
 Low. TODO_reasoning.
 
-#### Recommendation
+#### #### Recommendation
 
 TODO
 
-#### Developer Response
+#### #### Developer Response
 
 
 
@@ -219,15 +235,15 @@ TODO
 
 TODO
 
-#### Technical Details
+#### #### Technical Details
 
 TODO
 
-#### Impact
+#### #### Impact
 
 Gas savings.
 
-#### Recommendation
+#### #### Recommendation
 
 TODO
 
@@ -237,7 +253,7 @@ TODO
 
 In mul.circom:Secp256k1Mul, the value accIncomplete and PComplete are over-allocated.
 
-**Technical Details**
+#### Technical Details
 
 In [mul.circom:Secp256k1Mul](), the value `accIncomplete` and `PComplete` are over-allocated.
 ```
@@ -246,44 +262,44 @@ In [mul.circom:Secp256k1Mul](), the value `accIncomplete` and `PComplete` are ov
     component PComplete[bits-3]; 
 ```
 
-**Impact**
+#### Impact
 
 Optimization.
 
-**Recommendation**
+#### Recommendation
 
 Reduce the allocation of these component arrays to `accIncomplete[bits-p3]` and `PIncomplete[3]`.
 
-Reported By : [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou), [nullity](https://github.com/nullity00), [parsley](https://github.com/bbresearcher), 
+Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou), [nullity](https://github.com/nullity00), [parsley](https://github.com/bbresearcher), 
 
 ### 2. Informational - Unused values
 
 In `eff_ecdsa.circom`, the value `bits` is assigned but never read.
 
-**Technical Details**
+#### Technical Details
 
 In `eff_ecdsa.circom`, the value `bits` is assigned but never read.
 
-**Impact**
+#### Impact
 
 Informational.
 
-**Recommendation**
+#### Recommendation
 Remove the unused value.
 
-Reported By : [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou), [garfam](https://github.com/gafram), [parsley](https://github.com/bbresearcher)
+Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https://github.com/igorline), [Oba](https://github.com/obatirou), [garfam](https://github.com/gafram), [parsley](https://github.com/bbresearcher)
 
 ### 3. No constraints on input signals
 
-**Technical Details**
+#### Technical Details
 
 Likely due to a desire to reduce the number of constraints to a bare minimum, there are no constraints on input signals in any of the circuits. This could potentially cause issues for third party developers who use Spartan ECDSA.
 
-**Impact**
+#### Impact
 
 Informational.
 
-**Recommendation**
+#### Recommendation
 
 In order to keep the number of constraints to a minimum, simply document the absence of input signal constraints clearly and suggest that they be validated in the application code.
 
