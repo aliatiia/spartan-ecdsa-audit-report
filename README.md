@@ -97,25 +97,26 @@ It is possible to submit s = 0, Ux = pubX, Uy = pubY or s = 0, Ux = pubX, Uy = -
 Technical Details
 Given check
 
+s * T + U == pubKey Q_a \\
+For s = 0 and \forall T \in secp256k1 \\
+s * T + U = 0 * T + U = O + U = U == pubKey
+or
 ```math
-s * T + U == pubKey Q_a \
-
-For s = 0 and \forall T \in secp256k1 \
-
+For T = 0 and \forall s \in secp256k1
+s * T + U = s * 0 + U = O + U = U == pubKey 
 ```
 
+where `U = (pubX, pubY)`, -U would work as well, where `-U = (pubX, -pubY)`
 
-where U = (pubX, pubY), -U would work as well, where -U = (pubX, -pubY)
+[POC File](https://gist.github.com/igorline/c45c0fb84c943d1f641c82a20c02c21e#file-addr_membership-test-ts-L60-L66)
 
-POC: https://gist.github.com/igorline/c45c0fb84c943d1f641c82a20c02c21e#file-addr_membership-test-ts-L60-L66
-
-Impact
+**Impact**
 High. The missing constraints can be used to generate fake proof.
 
-Recommendation
+**Recommendation**
 Add the constraints to the circuit and/or documentation
 
-Developer Response
+**Developer Response**
 
 ## Medium Findings
 
