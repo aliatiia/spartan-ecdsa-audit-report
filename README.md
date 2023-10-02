@@ -1,4 +1,4 @@
-# yAcademy Spartan ECDSA
+# yAcademy Spartan-ecdsa Review
 
 Review Resources:
 
@@ -374,7 +374,7 @@ Reported by [Chen Wen Kang](https://github.com/cwkang1998), [Vincent Owen](https
 
 ## Final remarks
 
-- The Spartan-Ecdsa circuits assume that the underlying hash function (Poseidon) is:
+- The Spartan-ecdsa circuits assume that the underlying hash function (Poseidon) is:
     - Collision-resistant
     - Resistant to differential, algebraic, and interpolation attacks
     - Behaves as a random oracle
