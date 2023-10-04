@@ -18,8 +18,6 @@ A few things to note on results from Picus and Ecne:
 
 ### Results
 
-The relevant findings from each tool were already included in the report. Below you can find their full output.
-
 ### 1. Circomspect 
 
 [circomspect : A static analyzer and linter for the Circom zero-knowledge DSL](https://github.com/trailofbits/circomspect)

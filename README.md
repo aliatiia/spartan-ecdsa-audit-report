@@ -84,8 +84,8 @@ yAcademy and the auditors make no warranties regarding the security of the code 
 | Libraries                | Average | Well-known libraries such as circomlib are used, but [Poseidon](https://www.poseidon-hash.info) was custom-implemented with Spartan-ecdsa's own constants since the finite field that Spartan uses isn't supported |
 | Decentralization         | Good | Spartan-ecdsa is a permissionless protocol |
 | Cryptography           | Good    | Spartan-ecdsa operates on the `secp256k1` curve which provides a security level of `128 bits`. It makes use of the Poseidon hash function known for its zk-friendlinesss, simplicity, and resistance against various cryptanalytic attacks. However, it's essential to note that cryptographic algorithms and functions are always subject to ongoing analysis, and new attacks or weaknesses may be discovered in the future. |
-| Code stability           | Average    | The code was reviewed at a specific commit. The code did not changed during the review. However, due to its focus on efficiency, it is likely to change with the addition of features or updates, or to achieve further performance gains. |
-| Documentation            | Low | Spartan-ecdsa documentation comprises some [blog posts](https://personaelabs.org/posts/spartan-ecdsa/) from Personae Labs, the Github [README](https://github.com/personaelabs/spartan-ecdsa/blob/main/README.md) documentation, and some reference materials from [Filecoin](https://spec.filecoin.io/#section-algorithms.crypto.poseidon) and [Neptune](https://github.com/lurk-lab/neptune). It is recommended to aggregate the resources necessary of the protocol under a single repository |
+| Code stability           | Average    | The code was reviewed at a specific commit. The code did not change during the review. However, due to its focus on efficiency, it is likely to change with the addition of features or updates, or to achieve further performance gains. |
+| Documentation            | Low | Spartan-ecdsa documentation comprises [blog posts](https://personaelabs.org/posts/spartan-ecdsa/) from Personae Labs, the Github [README](https://github.com/personaelabs/spartan-ecdsa/blob/main/README.md) documentation, and reference materials from [Filecoin](https://spec.filecoin.io/#section-algorithms.crypto.poseidon) and [Neptune](https://github.com/lurk-lab/neptune). It is recommended to aggregate the resources necessary of the protocol under a single repository |
 | Monitoring               | N/A | The protocol is intended to be integrated by a dApps who will be responsible for any monitoring needed |
 | Testing and verification | Low | The protocol contains only a few tests for the circuits. During audit, the [circom-mutator](https://github.com/aviggiano/circom-mutator) testing tool was developed for finding potential blind spots in the test coverage of circom projects. The `circom-mutator` tool found that several edge cases were not tested by the project. It is recommended to add more tests to increase test coverage |
 
@@ -105,7 +105,7 @@ None.
 
 ## High Findings
 
-### 1. High - Input signal s is not constrained in ``eff_ecdsa.circom``
+### 1. High - Input signal s is not constrained in eff_ecdsa.circom
 
 It is possible to submit `s = 0`, `Ux = pubX`, `Uy = pubY` or `s = 0`, `Ux = pubX`, `Uy = -pubY` and get back `(pubX, pubY)`, though this is not a valid signature.
 
@@ -174,7 +174,7 @@ In the file [mul.circom](https://github.com/zBlock-1/spartan-ecdsa/blob/main/pac
 ```
 
 #### Impact
-High. Underconstraining allows malicious provers can generate fake proofs.
+High. Underconstraining allows malicious provers to generate fake proofs.
 
 #### Developer Response
 
@@ -221,7 +221,7 @@ In this case the output point would be the point at infinity instead of the actu
 Low. secp256k1 arithmetics is incorrect in some edge cases.
 
 #### Recommendation
-Document the proof that $P$, $Q$ on the curve such that $yP + yQ = 1$ do not exist or are practically impossible to occurr.
+Document the proof that when $yP + yQ = 1$, the points $P$ and $Q$ either do not exist on the curve or are highly improbable to occur.
 
 If this can't be done, then add a `isYEqual` component as done for `X` and use `AND()` instead of `IsEqual()`
 ```
@@ -240,7 +240,7 @@ Reported by [Bahurum](https://github.com/bahurum), [0xnagu](https://github.com/t
 
 ### 1. Informational - Over-allocation of circom components
 
-In mul.circom:Secp256k1Mul, the value accIncomplete and PComplete are over-allocated.
+In [mul.circom:Secp256k1Mul](https://github.com/zBlock-1/spartan-ecdsa/blob/main/packages/circuits/eff_ecdsa_membership/secp256k1/mul.circom), the value `accIncomplete` and `PComplete` are over-allocated.
 
 #### Technical Details
 
@@ -353,6 +353,7 @@ Do an additional check for non-zero values.
 
 #### Developer Response
 Acknowledged
+
 Reported by [Chen Wen Kang](https://github.com/cwkang1998), [Vincent Owen](https://github.com/makluganteng)
 
 #### 7. Informational - More tests for the circuits
