@@ -133,8 +133,6 @@ Command:
 Circuits were compiled with the following command to compare results with Ecne:
 `circom <file>.circom --r1cs --O0 --sym`
 
-- eff_ecdsa.circom
-Too long to run (too many constraints)
 - tree.circom
 ```
 solver z3
@@ -176,10 +174,9 @@ solver cvc5
 # strong uniqueness: unsafe.
 # weak uniqueness: unsafe.
 ```
-- mul.circom
+
+- poseidon.circom
 ```
-Too long to run (too many contraints)
-poseidon.circom
 solver z3
 # strong uniqueness: safe.
 # weak uniqueness: safe.
@@ -188,8 +185,8 @@ solver cvc5
 # strong uniqueness: safe.
 # weak uniqueness: safe.
 ```
-- pubkey_membership.circom
-Too long to run (too many constraints)
+- pubkey_membership.circom, mul.circom, eff_ecdsa.circom: intractable to run (too many constraints)
+
 
 ### 3. Ecne
 
@@ -287,9 +284,9 @@ R1CS function pubkeymembership has sound constraints (No trusted functions neede
 
 ### 4. Circom-Mutator
 
-During audit, we developed [circom-mutator](https://github.com/aviggiano/circom-mutator), a mutation testing tool designed to help find missing spots in the test coverage of circom projects.
+The [circom-mutator](https://github.com/aviggiano/circom-mutator) was developed during the review. It intended to help find blind spots in the test coverage of circom projects.
 
-`circom-mutator` works by injecting bugs into existing code in order to generate "mutants" and comparing the output of the existing tests. Ideally, the mutanted circuits should make tests fail. In many cases an injected bug will not necessarily mean that the circuit is vulnerable, but rather that the test coverage can be improved or that the circuit accepts these edge cases but proper validation should be performed elsewhere (such as in the application layer).
+`circom-mutator` works by injecting bugs into existing code in order to generate "mutants". The output is then compared with that of existing tests. Mutanted circuits should ideally make tests fail. In many cases, an injected bug will not necessarily mean that the circuit is vulnerable, but rather that the test coverage can be improved, or that the circuit accepts these edge cases but proper validation should be performed elsewhere (such as in the application layer).
 
 The tool can be used either as a CLI (`npx circom-mutator <file>`) or by adding it to the project and calling the `testMutations` helper function on the jest test files.
 

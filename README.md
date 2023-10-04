@@ -50,13 +50,13 @@ Auditors:
 
 **Spartan-ecdsa**
 
-Spartan-ecdsa is the fastest open-source method to verify ECDSA (secp256k1) signatures in zero-knowledge. It can prove ECDSA group membership 10 times faster than efficient-zk-ecdsa, personaelabs' previous implementation of fast ECDSA signature proving. [Spartan](https://github.com/microsoft/Spartan) is a high-speed zero-knowledge proof system which does not require trusted setup. Spartan uses ``curve25519-dalek`` for arithmetic over ``ristretto255`` whereas spartan-ecdsa uses the ``secp256k1 curve``.
+Spartan-ecdsa is a library for proving and verifying ECDSA (secp256k1) signatures in zero-knowledge. Group membership proving time is 10x faster in Spartan-ecdsa compared to [efficient-zk-ecdsa], the previous implemenation by Personae Labs. It is developed using the [Spartan](https://github.com/microsoft/Spartan) proof system which does not require trusted setup. However, Spartan uses ``secp256k1`` curve intead of ``curve25519-dalek`` in Spartan.
 
-The circuits of the Spartan-ecdsa repo were reviewed over 15 days. The code review was performed by 13 auditors between June 19, 2023 and July 5, 2023. The repository was under active development during the review, but the review was limited to the latest commit at the start of the review. This was commit [3386b30d9b](https://github.com/personaelabs/spartan-ecdsa/tree/3386b30d9b5b62d8a60735cbeab42bfe42e80429) for the Spartan-ecdsa repo.
+The Spartan-ecdsa circuits, commit [3386b30d9b](https://github.com/personaelabs/spartan-ecdsa/tree/3386b30d9b5b62d8a60735cbeab42bfe42e80429), were reviewed by 13 auditors between June 19, 2023 and July 5, 2023.
 
 ## Scope
 
-The scope of the review consisted of the following circuits at the specific commit:
+The scope of the review consisted of the following circuits at commit [3386b30d9b](https://github.com/personaelabs/spartan-ecdsa/tree/3386b30d9b5b62d8a60735cbeab42bfe42e80429):
 
 - eff_ecdsa.circom
 - tree.circom
@@ -68,7 +68,7 @@ The scope of the review consisted of the following circuits at the specific comm
 
 After the findings were presented to the Spartan-ecdsa team, fixes were made and included in several PRs.
 
-This review is a code review to identify potential vulnerabilities in the code. The reviewers did not investigate security practices or operational security and assumed that privileged accounts could be trusted. The reviewers did not evaluate the security of the code relative to a standard or specification. The review may not have identified all potential attack vectors or areas of vulnerability.
+This review is for identifying potential vulnerabilities in the code. The reviewers did not investigate security practices or operational security and assumed that privileged accounts could be trusted. The reviewers did not evaluate the security of the code relative to a standard or specification. The review may not have identified all potential attack vectors or areas of vulnerability.
 
 yAcademy and the auditors make no warranties regarding the security of the code and do not warrant that the code is free from defects. yAcademy and the auditors do not represent nor imply to third parties that the code has been audited nor that the code is free from defects. By deploying or using the code, Spartan-ecdsa and users of the circuits agree to use the code at their own risk.
 
@@ -80,14 +80,14 @@ yAcademy and the auditors make no warranties regarding the security of the code 
 | ------------------------ | ------- | ----------- |
 | Access Control           | N/A | Spartan-ecdsa is a permissionless protocol, and as such no access control is required |
 | Mathematics              | Good | Sage scripts were created to assess the security of some parameters used in the algorithms |
-| Complexity               | High | Spartan-ecdsa achieves performance improvements over standard ECDSA algorithms by changing how the signature verification mechanism is implemented. As such, it integrates most of its intricacies, consequently enhancing the overall complexity of the codebase |
-| Libraries                | Average | Spartan-ecdsa uses well known libraries, such as circomlib, whenever possible. However, due to the focus on efficiency, some library circuits were reimplemented from scratch |
+| Complexity               | High | Complexity is reduced compared to previous implementations due to doing right-field arithmetic on secq and eliminating SNARK-unfriendly range checks and big integer math. This led to an overall reduction of R1CS constraints from 1.5M to ~5k.  |
+| Libraries                | Average | Well-known libraries such as circomlib are used, but [Poseidon](https://www.poseidon-hash.info) was custom-implemented with Spartan-ecdsa's own constants since the finite field that Spartan uses isn't supported |
 | Decentralization         | Good | Spartan-ecdsa is a permissionless protocol |
-| Cryptography           | Good    | Spartan-ecdsa makes use of `secp256k1 curve` which provides a security level of `128 bits`. It makes use of the Poseidon hash function known for its efficiency, simplicity, and resistance against various cryptanalytic attacks. However, it's essential to note that cryptographic algorithms and functions are always subject to ongoing analysis, and new attacks or weaknesses may be discovered in the future. |
+| Cryptography           | Good    | Spartan-ecdsa operates on the `secp256k1` curve which provides a security level of `128 bits`. It makes use of the Poseidon hash function known for its zk-friendlinesss, simplicity, and resistance against various cryptanalytic attacks. However, it's essential to note that cryptographic algorithms and functions are always subject to ongoing analysis, and new attacks or weaknesses may be discovered in the future. |
 | Code stability           | Average    | The code was reviewed at a specific commit. The code did not changed during the review. However, due to its focus on efficiency, it is likely to change with the addition of features or updates, or to achieve further performance gains. |
-| Documentation            | Low | Spartan-ecdsa documentation comprises some [blog posts](https://personaelabs.org/posts/spartan-ecdsa/) from Personae Labs, the Github [README](https://github.com/personaelabs/spartan-ecdsa/blob/main/README.md) documentation, and some reference materials from [Filecoin](https://spec.filecoin.io/#section-algorithms.crypto.poseidon), and [Neptune](https://github.com/lurk-lab/neptune). It is recommended to aggregate the resources necessary to the understanding of the protocol under a single repository |
-| Monitoring               | N/A | The protocol is intended to be implemented by a dapp, which will be responsible for the monitoring |
-| Testing and verification | Low | The protocol contains only a few tests for the circuits. During audit, we developed [circom-mutator](https://github.com/aviggiano/circom-mutator), a mutation testing tool designed to help find missing spots in the test coverage of circom projects. The circom-mutator tool found that several edge cases that were not tested by the project. It is recommended to add more tests to increase the test coverage |
+| Documentation            | Low | Spartan-ecdsa documentation comprises some [blog posts](https://personaelabs.org/posts/spartan-ecdsa/) from Personae Labs, the Github [README](https://github.com/personaelabs/spartan-ecdsa/blob/main/README.md) documentation, and some reference materials from [Filecoin](https://spec.filecoin.io/#section-algorithms.crypto.poseidon) and [Neptune](https://github.com/lurk-lab/neptune). It is recommended to aggregate the resources necessary of the protocol under a single repository |
+| Monitoring               | N/A | The protocol is intended to be integrated by a dApps who will be responsible for any monitoring needed |
+| Testing and verification | Low | The protocol contains only a few tests for the circuits. During audit, the [circom-mutator](https://github.com/aviggiano/circom-mutator) testing tool was developed for finding potential blind spots in the test coverage of circom projects. The `circom-mutator` tool found that several edge cases were not tested by the project. It is recommended to add more tests to increase test coverage |
 
 ## Findings Explanation
 
@@ -131,7 +131,7 @@ T = 0 , \forall s \in secp256k1
 s * T + U = s * 0 + U = O + U = U == pubKey 
 ```
 
-where `U = (pubX, pubY)`, -U would work as well, where `-U = (pubX, -pubY)`. Here is a [POC](https://gist.github.com/igorline/c45c0fb84c943d1f641c82a20c02c21e#file-addr_membership-test-ts-L60-L66) to explain the same.
+where `U = (pubX, pubY)`. -U would work as well, where `-U = (pubX, -pubY)`. Here is a [POC](https://gist.github.com/igorline/c45c0fb84c943d1f641c82a20c02c21e#file-addr_membership-test-ts-L60-L66) to explain the same.
 
 #### Impact
 High. The missing constraints can be used to generate fake proof.
@@ -147,10 +147,10 @@ Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https:
 
 ### 2. High - Knowledge of any member signature allow to generate proof of membership
 
-Knowing any valid signature by an account stored in the merkle tree, allows to generate relevant proof of being a member
+Knowledge of any valid signature by an account stored in the merkle tree allows generating membership proof
 
 #### Technical Details
-There is no check on message supplied by the user thus user can submit any signature generated in the past with arbitrary message hashed
+There is no check on message supplied by the user. Anyone can submit valid past signatures with arbitrary message hash
 
 #### Impact
 High. The missing constraints can be used to generate fake proof.
@@ -165,7 +165,7 @@ Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https:
 
 ### 3. High - Under constrained circuits compromising the soundness of the system
 
-In the file [packages/circuits/eff_ecdsa_membership/secp256k1/mul.circom](), the signals `slo` & `shi` are assigned but not constrained.
+In the file [mul.circom](https://github.com/zBlock-1/spartan-ecdsa/blob/main/packages/circuits/eff_ecdsa_membership/secp256k1/mul.circom), the signals `slo` & `shi` are assigned but not constrained.
 
 #### Technical Details
 ```
@@ -174,7 +174,7 @@ In the file [packages/circuits/eff_ecdsa_membership/secp256k1/mul.circom](), the
 ```
 
 #### Impact
-High. Malicious provers can generate a fake proof in the case of an unsound system caused by underconstrained circuits.
+High. Underconstraining allows malicious provers can generate fake proofs.
 
 #### Developer Response
 
@@ -188,7 +188,7 @@ Circuits do not check whether the point $(x,y)$ is on the curve $E$.
 
 #### Technical Details
 
-The pair $\(x,y)\$ forms a group $G\$ of order $N\$ under $E(\mathbb{F}_p)/\mathcal{P}\$ where $E\$ represents an elliptic curve, $x, y < P\$ and $\mathbb{F}_p\$ denotes a finite field, and $\mathcal{P}\$ represents the prime order of the base point. But no check for whether $\(x,y)\$ in $G\$ is done. That is, the point $\(x,y)\$ is not being validated.
+The pair $\(x,y)\$ forms a group $G\$ of order $N\$ under $E(\mathbb{F}_p)/\mathcal{P}\$ where $E\$ represents an elliptic curve, $x, y < P\$, $\mathbb{F}_p\$ denotes a finite field, and $\mathcal{P}\$ represents the prime order of the base point. There is no check validating that $\(x,y)\$ $\in$ $G\$. 
 
 #### Impact
 
@@ -218,12 +218,12 @@ None.
 In this case the output point would be the point at infinity instead of the actual sum.
 
 #### Impact
-Low. Secp256k1 arithmetics is incorrect in some edge cases.
+Low. secp256k1 arithmetics is incorrect in some edge cases.
 
 #### Recommendation
 Document the proof that $P$, $Q$ on the curve such that $yP + yQ = 1$ do not exist or are practically impossible to occurr.
 
-If this can't be done, then add a `isYEqual` component as done for X and use `AND()` instead of `IsEqual()`
+If this can't be done, then add a `isYEqual` component as done for `X` and use `AND()` instead of `IsEqual()`
 ```
     component zeroizeA = AND();
     zeroizeA.in[0] <== isXEqual.out;
@@ -244,7 +244,7 @@ In mul.circom:Secp256k1Mul, the value accIncomplete and PComplete are over-alloc
 
 #### Technical Details
 
-In [mul.circom:Secp256k1Mul](), the value `accIncomplete` and `PComplete` are over-allocated.
+In [mul.circom:Secp256k1Mul](https://github.com/zBlock-1/spartan-ecdsa/blob/main/packages/circuits/eff_ecdsa_membership/secp256k1/mul.circom), the value `accIncomplete` and `PComplete` are over-allocated.
 ```
     component accIncomplete[bits];
     // ...
@@ -272,7 +272,7 @@ Add assertions and constraints to check for invalid inputs and edge cases
 Informational.
 
 #### Recommendation
-Add a constraint to ensure that the input scalar is within the valid range of the Secp256k1 elliptic curve. You can do this by adding an assertion to check if the scalar is less than the curve's order.
+Add a constraint to ensure that the input scalar is within the valid range of the secp256k1 elliptic curve. You can do this by adding an assertion to check if the scalar is less than the curve's order.
 ```
 // Add this line after the signal input scalar declaration
 assert(scalar < 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141);
@@ -304,7 +304,7 @@ Reported by [Antonio Viggiano](https://github.com/aviggiano), [Igor Line](https:
 
 #### Technical Details
 
-Likely due to a desire to reduce the number of constraints to a bare minimum, there are no constraints on input signals in any of the circuits. This could potentially cause issues for third party developers who use Spartan ECDSA.
+There are no constraints on input signals in any of the circuits (presumably to reduce the number of constraints to a bare minimum). This could potentially cause issues for third party developers integrating Spartan-ECDSA.
 
 #### Impact
 Informational.
@@ -321,7 +321,7 @@ Reported by [whoismatthewmc](https://github.com/whoismatthewmc1)
 
 #### Technical Details
 
-The `add.circom` import is missing in `eff_ecdsa.circom`. The `bitify.circom` is imported in eff_ecdsa.circom but not used.
+The `add.circom` import is missing in `eff_ecdsa.circom`. The `bitify.circom` is imported in `eff_ecdsa.circom` but not used.
 
 #### Impact
 
@@ -381,6 +381,6 @@ Reported by [Chen Wen Kang](https://github.com/cwkang1998), [Vincent Owen](https
 - The Merkle tree used for membership proof is assumed to be secure against second-preimage attacks.
 - Social engineering attacks are still a valid way to break the system.
 ECDSA has several nonce based attacks. It is very important that the client side confirguration doesn't leak any nonce data or any app metadata that can reduce the security of guessing nonce for the ECDSA.
-- Clarify the proper usage of each template, where assertions about the valuation of its inputs (pre-conditions) should be satisfied when calling the template.
-- Write a detailed check list of things to do on the client side. This can help the developers not make standard mistakes of not validating the inputs and outputs and there by resulting into underconstrained related critical bugs.
-- Overall, the code demonstrates good implementation of mathematical operations and basic functionality. However, it could benefit from more extensive documentation and additional testing and verification procedures.
+- We recommend clarifying the proper usage of each template, where assertions about the valuation of its inputs (pre-conditions) should be satisfied when calling the template.
+- We recommend writing a checklist to be ensured on the client side. This can help dApp developers avoid common mistakes such as missing validation of inputs which can lead to soundness bugs. 
+- Overall, the code demonstrates good implementation of mathematical operations and basic functionality. However, it could benefit from more documentation and tests.
