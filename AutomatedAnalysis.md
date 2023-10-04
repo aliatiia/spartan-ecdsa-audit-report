@@ -18,8 +18,6 @@ unknown: Picus cannot get a result within the given time limit. Manual review is
 
 ### Results
 
-The relevant findings from each tool were already included in the report. Below you can find their full output.
-
 ### 1. Circomspect 
 
 [circomspect : A static analyzer and linter for the Circom zero-knowledge DSL](https://github.com/trailofbits/circomspect)
