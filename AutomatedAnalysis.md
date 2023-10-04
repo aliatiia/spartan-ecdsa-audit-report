@@ -9,12 +9,12 @@ Over the course of the audit, in addition to a manual review of the code, we app
 
 A few things to note on results from Picus and Ecne:
 
-- Ecne can output false positive. It relies on static analysis and there is no solver to concretely find the potential attack vector.
-- Picus will not output false positive. When Picus says there is a bug, there is for sure a bug. Potential output are:
-safe: Picus cannot find underconstrained bugs
-unsafe: Picus can find an underconstrained bug and it usually will also output the attack vector
-unknown: Picus cannot get a result within the given time limit. Manual review is necessary or increase in time limit for the solver.
-- It is needed to take into account that two solvers that use different theories are available for Picus: z3 and cvc5. Picus and some of its libraries are still in development and could cointain bugs. In case of conflicting results, safe for one and unsafe for the other, the only way to know which one is correct is to manually verify the counter example outputted by the solver that reports unsafe.
+- Ecne can output false positive. It relies on static analysis but [does not](https://discord.com/channels/877252171983360072/1125118979065782456/1125286705377837206) call an SMT solver to concretely find the potential attack vector.
+- Picus does not output false positive. Its produces one of the following outputs:
+`safe`: Picus did not find underconstrained bugs
+`unsafe`: Picus found an underconstrained bug. It may also output the attack vector.
+`unknown`: Picus cannot get a result within the given time limit. Manual review is necessary. The time limit for the solver can also be increased.
+- Note that two solvers that use different theories are available for Picus: z3 and cvc5. Picus and some of its libraries are still in development and could cointain bugs. In case of conflicting results, `safe` for one and `unsafe` for the other, the only way to know which one is correct would be to manually verify the counter example produced by the solver that reported `unsafe`.
 
 ### Results
 

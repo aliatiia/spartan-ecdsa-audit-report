@@ -50,7 +50,7 @@ Auditors:
 
 **Spartan-ecdsa**
 
-Spartan-ecdsa is a library for proving and verifying ECDSA (secp256k1) signatures in zero-knowledge. Group membership proving time is 10x faster in Spartan-ecdsa compared to [efficient-zk-ecdsa], the previous implemenation by Personae Labs. It is developed using the [Spartan](https://github.com/microsoft/Spartan) proof system which does not require trusted setup. However, Spartan uses ``secp256k1`` curve intead of ``curve25519-dalek`` in Spartan.
+Spartan-ecdsa is a library for proving and verifying ECDSA (secp256k1) signatures in zero-knowledge. Group membership proving time is 10x faster in Spartan-ecdsa compared to [efficient-zk-ecdsa](https://github.com/personaelabs/efficient-zk-ecdsa), the previous implemenation by Personae Labs. It is developed using the [Spartan](https://github.com/microsoft/Spartan) proof system which does not require trusted setup. However, Spartan uses ``secp256k1`` curve intead of ``curve25519-dalek`` in Spartan.
 
 The Spartan-ecdsa circuits, commit [3386b30d9b](https://github.com/personaelabs/spartan-ecdsa/tree/3386b30d9b5b62d8a60735cbeab42bfe42e80429), were reviewed by 13 auditors between June 19, 2023 and July 5, 2023.
 
